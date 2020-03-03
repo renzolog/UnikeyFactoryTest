@@ -1,0 +1,86 @@
+﻿@using UnikeyFactoryTest.Presentation.Controllers
+@model UnikeyFactoryTest.Presentation.Models.AdministratedTestModel
+
+@{
+    Layout = "~/Views/Shared/LayoutFruition.cshtml";
+}
+
+<img src="~/Logos/UnikeyLogo.png" class="logo" />
+<div class="container" style="width:100%;">
+
+    <h2 class="Title">Assessment of @Model.Name @Model.Surname</h2>
+    <div class="QuestionContainer" style="position:relative;padding-top:17px">
+        @using (Html.BeginForm("SaveTest", "ExTest"))
+        {
+            <input type="hidden" value="@Model.Url" name="Url" />
+            <input type="hidden" name="NumQuestion" value="@Model.NumQuestion" />
+            <input type="hidden" name="ActualPosition" value="@Model.ActualQuestion.Position" />
+            <input type="hidden" name="Name" value="@Model.Name" />
+            <input type="hidden" name="Surname" value="@Model.Surname" />
+            <input type="hidden" name="AdministratedTestId" value="@Model.ActualQuestion.AdministratedTestId" />
+
+            if (String.IsNullOrEmpty(Model.ActualQuestion.Text) != true)
+            {
+                <label id="Question">
+                    @Model.ActualQuestion.Text
+                </label>
+                <hr />
+            }
+            <div class="AnswerContainer">
+
+                @foreach (var answer in Model.ActualQuestion.AdministratedAnswers)
+                {
+
+                    <div class="answer" onclick="selected(@answer.Id);" style="margin-bottom:17px">
+                        <div class="form-check">
+                            <label class="AnswerLabel">@answer.Text</label>
+                            <span class="RadioInput">
+                                @if (answer.isSelected)
+                                {
+                                    @Html.RadioButton(Model.ActualQuestion.Id.ToString(), answer.Id.ToString(), new { @id = answer.Id, @checked = "checked" })
+                                }
+                                else
+                                {
+                                    @Html.RadioButton(Model.ActualQuestion.Id.ToString(), answer.Id.ToString(), new { @id = answer.Id })
+                                }
+
+                            </span>
+                        </div>
+                    </div>
+                }
+
+            </div>
+            <hr />
+            <div class="container">
+                <div class="row">
+                    <div class="col-4" style="text-align:right">
+                        @if (Model.ActualQuestion.Position > 0)
+                        {
+                            <button class="btn btn-success PreviousButton" style="float:left" formaction="/ExTest/Previous">Previous</button>
+                        }
+                    </div>
+                    <div class="col-4"></div>
+                    <div class="col-4">
+                        @if (Model.ActualQuestion.Position < Model.NumQuestion - 1)
+                        {
+                            <button class="btn btn-success NextButton" style="float:right" formaction="/ExTest/Next">Next</button>
+                        }
+                        @if (Model.ActualQuestion.Position == Model.NumQuestion - 1)
+                        {
+                            <button type="submit" class="btn btn-success SaveButton" style="float:right" formaction="/ExTest/SaveTest">Finish Test</button>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    <script type="text/javascript">
+        function selected(data) {
+            let isCheked = document.getElementById(data).checked;
+            if (isCheked == false) {
+                document.getElementById(data).checked = true;
+            }
+        }
+    </script>
+</div>

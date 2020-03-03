@@ -1,0 +1,25 @@
+﻿@model UnikeyFactoryTest.Presentation.Models.AdministratedTestModel
+
+@{
+    Layout = "~/Views/Shared/LayoutFruition.cshtml";
+}
+
+<img src="~/Logos/UnikeyLogo.png" class="logo" />
+<div class="container startContainer">
+    <div class="myForm">
+        <h3>Assessment</h3>
+        <hr />
+        <form action="/ExTest/BeginTest" method="post">
+            <input type="hidden" name="Url" value="@Model.Url" />
+            <strong><label class="myLabel">Name: </label></strong>
+            <input type="text" name="Name" class="myInput" placeholder="Insert name..." required />
+            <br />
+            <strong><label class="myLabel">Surname: </label></strong>
+            <input type="text" name="Surname" class="myInput" placeholder="Insert surname..." required />
+            <hr />
+            <div class="buttonDiv">
+                <button class="btn btn-success">Begin</button>
+            </div>
+        </form>
+    </div>
+</div>

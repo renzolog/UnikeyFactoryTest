@@ -1,0 +1,228 @@
+﻿@using UnikeyFactoryTest.Presentation.Models.DTO
+@model UnikeyFactoryTest.Presentation.Models.DTO.TestDto
+
+<link href="~/Content/font-awesome.css" rel="stylesheet" />
+<style>
+    #buttonCreate {
+        margin-left: 83%;
+        margin-top: 2px;
+    }
+
+    .class-mymarginleft {
+        margin-left: 5px;
+    }
+
+    #class-textBox {
+        max-width: 100%;
+        width: 100%;
+        margin-top: 5px;
+    }
+
+    #myDivContainerDown {
+        margin-top: 10px;
+    }
+
+    .class-selected {
+        border: 2px solid limegreen
+    }
+</style>
+
+<script>
+    function CorrectAnswer(id, idchk, idtxt) {
+        var isChecked = document.getElementById(id).checked;
+        var targetInput = document.getElementById(idtxt);
+        if (isChecked == true) {
+            document.getElementById(idchk).classList.add("class-selected");
+            //document.getElementById(idtxt).hidden = false;
+
+            targetInput.removeAttribute("hidden");
+            targetInput.setAttribute("required", "required");
+
+            //$(divId)
+            //    .html(
+            //        "<input value='0' class = 'form-control' id='txt_Score'" + ind + " name='Answers[" + ind + "].Score' placeholder='Score' style='width: 80px;' type='number' required>");
+        }
+        else {
+            document.getElementById(idchk).classList.remove("class-selected");
+            targetInput.setAttribute("hidden", true);
+            targetInput.removeAttribute("required");
+            //document.getElementById(idtxt).hidden = true;
+
+        }
+    }
+
+    function EnableDiv(id) {
+        document.getElementById(id).hidden = false;
+    }
+
+    function ShowAddQuestionPartial() {
+        showLoadingSpinner();
+        $('#mydivQuestionForm').empty();
+        $("#mydivQuestionForm").load('@Url.Action("GetAddQuestionPartial", "Test",Model)');
+        hideLoadingSpinner();
+
+    }
+
+    function UnloadAddQuestionPartial() {
+        showLoadingSpinner();
+        $("#mydivQuestionForm").unload('@Url.Action("GetAddQuestionPartial", "Test", Convert.ToInt32(Model.Id))');
+        hideLoadingSpinner();
+    }
+
+    function emptyPartialView() {
+
+        $("#mydivQuestionForm").empty();
+
+    }
+    function modalOpen() {
+        $('#myModal').modal('show');
+
+    }
+    function modalBack() {
+        $('#myModal').modal('hide');
+
+    }
+    function modalYes() {
+
+        $('#myModal').modal('hide');
+
+        emptyPartialView();
+
+    }
+    function DoneBtn() {
+        alert("The test has been saved");
+    }
+    function ShowDetails(id) {
+        showLoadingSpinner();
+        $.ajax({
+            type: "GET",
+            url: "/Test/QuestionDetails?questionId=" + id,
+            dataType: "html",
+            success: function (data) {
+                $('#mydivQuestionForm').empty();
+                $('#mydivQuestionForm').html(data);
+                hideLoadingSpinner();
+            }
+
+        });
+    }
+
+</script>
+
+@using (Html.BeginForm("AddTest", "Test", FormMethod.Post))
+{
+    @Html.HiddenFor(x => x.Id)
+    <div class="form-group" id="myDivContainerTop" style="width: 50%; margin-left: 25%">
+
+        @{
+            if (Model.ShowForm == false)
+            {
+                @Html.TextBoxFor(x => x.Title, new { @class = "form-control", id = "class-textBox", placeholder = "TestName" })
+                @Html.ValidationMessageFor(x => x.Title, "", new { @class = "text-danger" })
+
+                @Html.TextBoxFor(x => x.Date, new { @class = "form-control", id = "class-textBox", placeholder = "Date", disabled = "disabled" })
+
+
+                <button class="btn btn-primary" id="buttonCreate" style="margin-left: 45%; margin-top: 10px" onclick="showLoadingSpinner();">
+                    Create
+                </button>
+            }
+            if (Model.ShowForm)
+            {
+                @Html.TextBoxFor(x => x.Title, new { @class = "form-control", id = "class-textBox", placeholder = "TestName", disabled = "disabled" })
+                @Html.ValidationMessageFor(x => x.Title, "", new { @class = "text-danger" })
+
+                @Html.TextBoxFor(x => x.Date, new { @class = "form-control", id = "class-textBox", placeholder = "Date", disabled = "disabled" })
+
+
+                <button class="btn btn-primary" id="buttonCreate" disabled style="margin-left: 45%; margin-top: 10px">
+                    Create
+                </button>
+            }
+
+        }
+    </div>
+
+
+}
+
+@if (Model != null)
+{
+    if (Model.ShowForm)
+    {
+        <div class="container" id="myDivContainerDown">
+            <div class="row">
+                <div class="col-lg-6 col-md-6 col-sm-6" id="divList" style="text-align:center;">
+                    <table class="table table-bordered">
+                        <tr>
+                            <th>
+                                QuestionText
+                            </th>
+                            <th>
+                                <i class="fa fa-plus btn " onclick="ShowAddQuestionPartial()" title="Add question"></i>
+                            </th>
+                        </tr>
+
+                        @foreach (var Question in Model.Questions)
+                        {
+                            <tr>
+                                <td>
+                                    @Html.DisplayFor(modelItem => Question.Text)
+                                </td>
+
+                                <td>
+                                    <a href="@Url.Action("DeleteQuestion", "Test", Question)">
+                                        <i class="fa fa-trash btn" title="Delete" onclick="showLoadingSpinner();"></i> |
+                                    </a>
+                                    <a onclick="ShowDetails(@Question.Id)">
+                                        <i class="fa fa-edit btn" title="Details"></i>
+                                    </a>
+
+                                </td>
+                            </tr>
+                        }
+
+
+                    </table>
+
+                    <a href="@Url.Action("TestsList", "Test", new { PageNumber = 1, PageSize = 10 })" onclick="DoneBtn()">
+                        <i class="fa fa-check btn" id="doneBtn" style="color: green" title="Done" onclick="showLoadingSpinner();"></i>
+                    </a>
+
+                </div>
+                
+                <div class="col-lg-6 col-md-6 col-sm-6" id="mydivQuestionForm">
+                @if (Model.ShowPartial)
+                {
+                    var myModel = new QuestionDto() {TestId = Model.Id,};
+               
+                    @Html.Partial("AddQuestionPartial", myModel);
+                }
+                    </div>
+
+            </div>
+        </div>
+    }
+}
+
+
+
+<div class="modal fade" id="myModal" data-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="staticBackdropLabel">Alert</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to go back?
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="modalYes()">Yes</button>
+                    <button type="button" class="btn btn-primary" onclick="modalBack()">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

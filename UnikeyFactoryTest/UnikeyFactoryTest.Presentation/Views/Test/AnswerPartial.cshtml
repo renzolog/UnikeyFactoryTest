@@ -1,0 +1,14 @@
+﻿@using UnikeyFactoryTest.Domain.Enums
+@model UnikeyFactoryTest.Presentation.Models.DTO.AnswerDto
+
+<div class="radio testContentRadio">
+
+    ◾
+    @Html.Label(@Model.Text, @Model.Text,
+        new
+        {
+            style = (Model.IsCorrectBool == true)
+                ? "background-color: #70db70" : ""
+        })
+
+</div>

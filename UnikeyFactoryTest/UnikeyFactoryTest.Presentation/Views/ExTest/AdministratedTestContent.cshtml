@@ -1,0 +1,49 @@
+﻿@using UnikeyFactoryTest.Presentation.Models.DTO
+@model  AdministratedTestDto
+
+@{
+    ViewBag.Title = "AdministratedTestContent";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<h1>@Model.TestSubject</h1>
+<h3>Score: @Model.ResultScore</h3>
+<a title="Go Back" onclick="showLoadingSpinner()" href='@Url.Action("AdministratedTestsList", "ExTest", new {PageNumber=@Model.PageNumber, PageSize=@Model.PageSize, TextFilter = @Model.TextFilter})'><img id="backIcon" src="~/Content/ICONS/goBackIcon.png" alt="goBack"></a>
+<hr />
+<br />
+
+<div class="container col-8">
+
+    @{
+        int i = 1;
+        foreach (AdministratedQuestionDto question in Model.AdministratedQuestions)
+        {
+            <div class="row testContentRow">
+                <div>
+                    <div>
+                        <strong>Domanda @i</strong>
+                    </div>
+                    <div>
+                        <strong>
+                            Score: @question.AdministratedAnswers.Where(a => a.IsSelected).Sum(a => a.Score) /
+                            @question.AdministratedAnswers.Where(a => a.IsCorrect == 1).Sum(a => a.Score)
+                        </strong>
+                    </div>
+                    <hr />
+                    <p>@question.Text</p>
+                </div>
+            </div>
+            <br>
+            <form>
+                @foreach (var answer in question.AdministratedAnswers)
+                {
+                    {
+                        Html.RenderPartial("AdministratedAnswerPartial", answer);
+                    }
+                }
+            </form>
+
+            <br>
+            ++i;
+        }
+    }
+</div>
